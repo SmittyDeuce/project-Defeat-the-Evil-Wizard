@@ -16,15 +16,71 @@ class Character:
     def display_stats(self):
         print(f"{self.name}'s Stats - Health: {self.health}/{self.max_health}, Attack Power: {self.attack_power}")
 
-    # Add your heal method here
+    def HealthPotion(self):
+        potions = {
+            "Extreme": self.max_health,  # Full health restore
+            "Super": 50,  # Restores 50 health points
+            "Ultra": 20,   # Restores 20 health points
+            "Common": 10   # Restores 10 health points
+        }
+        
+        # Display available potions and their healing values
+        for potion_type, potion_amount in potions.items():
+            print(f"{potion_type} Health Potion: Restores {potion_amount} HP")
+        
+        # Ask the user to choose a potion
+        choice = input("Choose a potion to use (1 for Extreme, 2 for Super, 3 for Ultra, 4 for Common): ")
 
+        if choice == '1':
+            # Extreme Potion: Restores full health
+            self.health = self.max_health
+            print(f"{self.name} used an Extreme Health Potion and is now at full health!")
+        elif choice == '2':
+            # Super Potion: Restores 50 health
+            if self.health + 50 > self.max_health:
+                self.health = self.max_health
+            else:
+                self.health += 50
+            print(f"{self.name} used a Super Health Potion, restoring 50 HP! Current health: {self.health}")
+        elif choice == '3':
+            # Ultra Potion: Restores 20 health
+            if self.health + 20 > self.max_health:
+                self.health = self.max_health
+            else:
+                self.health += 20
+            print(f"{self.name} used an Ultra Health Potion, restoring 20 HP! Current health: {self.health}")
+        elif choice == '4':
+            # Common Potion: Restores 10 health
+            if self.health + 10 > self.max_health:
+                self.health = self.max_health
+            else:
+                self.health += 10
+            print(f"{self.name} used a Common Health Potion, restoring 10 HP! Current health: {self.health}")
+        else:
+            print("Invalid choice! No potion used.")
+            
 
 # Warrior class (inherits from Character)
 class Warrior(Character):
     def __init__(self, name):
         super().__init__(name, health=140, attack_power=45)  # Boost health and attack power
 
-    # Add your power attack method here
+    def FinalStand(self, opponent):
+        if self.health <= 0:
+            print(f"{self.name} is no longer able to fight... Final Stand activates!")
+            # Here, you can calculate the damage for Final Stand.
+            damage = self.attack_power * 3  # Example damage calculation
+            opponent.health -= damage
+            print(f"{self.name} deals {damage} damage with Final Stand to {opponent.name}!")
+            self.health = 0  # Ensure health is set to 0 after Final Stand activates.
+        else:
+            print(f"{self.name} takes damage! Remaining health: {self.health}")
+
+    def Blitzkrieg(self, opponent):
+        print(f"{self.name} uses Blitzkrieg! Hurling an axe imbued with lightning, causing paralysis!")
+        print(f"{opponent.name} will miss their next turn due to the paralysis!")
+
+        
 
 
 # Mage class (inherits from Character)
@@ -35,7 +91,7 @@ class Mage(Character):
     def TotalErasure(self, opponent):
         chance = random.random()
         if self.health <= 5:
-            print(f"{self.health} doesnt have enough health for Total Erasue!")
+            print(f"{self.health} doesnt have enough health for Total Erasure!")
             return
         
         self.health -= 5
@@ -49,7 +105,11 @@ class Mage(Character):
             print(f"Total Erasure fails, {opponent.name} still exists")
             
     def MeteorShower(self):
-        
+        strikes = random.randrange(0, 5)
+        total_dmg = strikes * self.attack_power
+
+        print(f"{self.name} used Meteor Shower, hitting {strikes} time(s) for a total of {total_dmg} damage!")
+        return total_dmg
         
             
     
@@ -60,6 +120,7 @@ class Archer(Character):
     def QuickShot(self):
         damage = self.attack_power + 10
         print(f"{self.name} used Quick Shot for {damage} damage!!")
+        return damage
         
     def Evade(self):
         chance = random.random()
@@ -73,7 +134,7 @@ class Archer(Character):
         
 
 class Paladin(Character):
-    def __init__(self, name, health, attack_power):
+    def __init__(self, name):
         super().__init__(name, health=150, attack_power=35)
         
     def HolyStrike(self):
@@ -91,11 +152,9 @@ class Paladin(Character):
             return total_damage
         
     def DivineShield(self):
-        blocked = True
-        print(f"{self.name} actiavtes Divine Shield! Next attack will be blocked")
-        blocked = False
-        return
-        
+        print(f"{self.name} activates Divine Shield! Next attack will be blocked.")
+        return True
+            
         
             
 
