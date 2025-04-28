@@ -1,4 +1,5 @@
 import random
+import inspect
 # Base Character class
 class Character:
     def __init__(self, name, health, attack_power):
@@ -6,7 +7,9 @@ class Character:
         self.health = health
         self.attack_power = attack_power
         self.max_health = health  # Store the original health for maximum limit
-
+        self.abilities = []
+        
+        
     def attack(self, opponent):
         opponent.health -= self.attack_power
         print(f"{self.name} attacks {opponent.name} for {self.attack_power} damage!")
@@ -59,11 +62,20 @@ class Character:
         else:
             print("Invalid choice! No potion used.")
             
+            
+    def add_ability(self, ability):
+        self.abilities.append(ability)
+
+    def use_ability(self, ability_index, opponent):
+        if 0 <= ability_index < len(self.abilities):
+            ability = self.abilities[ability_index]
+            ability(self, opponent)
 
 # Warrior class (inherits from Character)
 class Warrior(Character):
     def __init__(self, name):
         super().__init__(name, health=140, attack_power=45)  # Boost health and attack power
+        self.abilities = [self.FinalStand, self.Blitzkrieg]
 
     def FinalStand(self, opponent):
         if self.health <= 0:
@@ -87,6 +99,7 @@ class Warrior(Character):
 class Mage(Character):
     def __init__(self, name):
         super().__init__(name, health=100, attack_power=20)  # Boost attack power
+        self.abilities = [self.TotalErasure, self.MeteorShower]
 
     def TotalErasure(self, opponent):
         chance = random.random()
@@ -104,18 +117,18 @@ class Mage(Character):
         else:
             print(f"Total Erasure fails, {opponent.name} still exists")
             
-    def MeteorShower(self):
+    def MeteorShower(self, opponent):
         strikes = random.randrange(0, 5)
         total_dmg = strikes * self.attack_power
-
+        opponent.health -= total_dmg
         print(f"{self.name} used Meteor Shower, hitting {strikes} time(s) for a total of {total_dmg} damage!")
-        return total_dmg
         
             
     
 class Archer(Character):
     def __init__(self, name):
         super().__init__(name, health=120, attack_power=30)
+        self.abilities = [self.QuickShot, self.Evade]
         
     def QuickShot(self):
         damage = self.attack_power + 10
@@ -136,6 +149,7 @@ class Archer(Character):
 class Paladin(Character):
     def __init__(self, name):
         super().__init__(name, health=150, attack_power=35)
+        self.abilities = [self.HolyStrike, self.DivineShield]
         
     def HolyStrike(self):
         crit_attack = 2
@@ -206,8 +220,25 @@ def battle(player, wizard):
         if choice == '1':
             player.attack(wizard)
         elif choice == '2':
-            # Call the special ability here
-            pass  # Implement this
+            for index, ability in enumerate(player.abilities):
+                print(f"{index + 1}. {ability.__name__.replace('_', ' ').capitalize()}")
+
+            ability_used = int(input("Choose an ability: "))
+            if 1 <= ability_used <= len(player.abilities):
+                selected_ability = player.abilities[ability_used -1]
+                
+                params = inspect.signature(selected_ability).parameters
+                
+                if len(params) > 1:
+                    selected_ability(player, wizard)
+                
+                else:
+                    selected_ability(wizard)
+                
+            else:
+                print("Invalid ability choice")
+                    
+            
         elif choice == '3':
             # Call the heal method here
             pass  # Implement this
