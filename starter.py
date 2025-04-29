@@ -1,5 +1,6 @@
 import random
 import inspect
+
 # Base Character class
 class Character:
     def __init__(self, name, health, attack_power):
@@ -9,10 +10,15 @@ class Character:
         self.max_health = health  # Store the original health for maximum limit
         self.abilities = []
         
-        
     def attack(self, opponent):
         opponent.health -= self.attack_power
         print(f"{self.name} attacks {opponent.name} for {self.attack_power} damage!")
+        
+        if hasattr(opponent, "block_next") and opponent.block_next:
+            print(f"{opponent.name} blocks the attack with Divine Shield! No damage taken.")
+            opponent.block_next = False  # Reset block
+            return
+        
         if opponent.health <= 0:
             print(f"{opponent.name} has been defeated!")
 
@@ -62,7 +68,6 @@ class Character:
         else:
             print("Invalid choice! No potion used.")
             
-            
     def add_ability(self, ability):
         self.abilities.append(ability)
 
@@ -74,26 +79,39 @@ class Character:
 # Warrior class (inherits from Character)
 class Warrior(Character):
     def __init__(self, name):
-        super().__init__(name, health=140, attack_power=45)  # Boost health and attack power
+        super().__init__(name, health=140, attack_power=45)
         self.abilities = [self.FinalStand, self.Blitzkrieg]
+        self.blitzkrieg_cooldown = 0  # in turns
 
     def FinalStand(self, opponent):
         if self.health <= 0:
             print(f"{self.name} is no longer able to fight... Final Stand activates!")
-            # Here, you can calculate the damage for Final Stand.
-            damage = self.attack_power * 3  # Example damage calculation
+            damage = self.attack_power * 3
             opponent.health -= damage
             print(f"{self.name} deals {damage} damage with Final Stand to {opponent.name}!")
-            self.health = 0  # Ensure health is set to 0 after Final Stand activates.
+            self.health = 0  # Ensure Warrior stays dead after this move
+
+            if opponent.health <= 0:
+                print(f"{opponent.name} has been defeated by Final Stand!")
         else:
-            print(f"{self.name} takes damage! Remaining health: {self.health}")
+            print(f"{self.name} is still alive and cannot use Final Stand.")
 
     def Blitzkrieg(self, opponent):
-        print(f"{self.name} uses Blitzkrieg! Hurling an axe imbued with lightning, causing paralysis!")
-        print(f"{opponent.name} will miss their next turn due to the paralysis!")
+        if self.blitzkrieg_cooldown > 0:
+            print(f"Blitzkrieg is on cooldown for {self.blitzkrieg_cooldown} more turn(s).")
+            return
 
-        
+        rush_attack = self.attack_power
+        siphon = rush_attack * 0.09
+        opponent.health -= rush_attack
+        self.health += siphon
+        if self.health > self.max_health:
+            self.health = self.max_health
 
+        print(f"{self.name} unleashes Blitzkrieg! A furious charge deals {rush_attack} damage to {opponent.name}!")
+        print(f"{self.name} siphons {siphon:.2f} HP. Current HP: {self.health:.2f}/{self.max_health}")
+
+        self.blitzkrieg_cooldown = 3  # Cooldown of 3 turns
 
 # Mage class (inherits from Character)
 class Mage(Character):
@@ -104,7 +122,7 @@ class Mage(Character):
     def TotalErasure(self, opponent):
         chance = random.random()
         if self.health <= 5:
-            print(f"{self.health} doesnt have enough health for Total Erasure!")
+            print(f"{self.health} doesn't have enough health for Total Erasure!")
             return
         
         self.health -= 5
@@ -113,7 +131,6 @@ class Mage(Character):
         if chance <= 0.08:
             opponent.health = 0
             print(f"{opponent.name} has been completely erased from existence")
-            
         else:
             print(f"Total Erasure fails, {opponent.name} still exists")
             
@@ -122,36 +139,34 @@ class Mage(Character):
         total_dmg = strikes * self.attack_power
         opponent.health -= total_dmg
         print(f"{self.name} used Meteor Shower, hitting {strikes} time(s) for a total of {total_dmg} damage!")
-        
-            
-    
+
 class Archer(Character):
     def __init__(self, name):
         super().__init__(name, health=120, attack_power=30)
         self.abilities = [self.QuickShot, self.Evade]
         
-    def QuickShot(self):
+    def QuickShot(self, opponent):
         damage = self.attack_power + 10
-        print(f"{self.name} used Quick Shot for {damage} damage!!")
+        print(f"{self.name} used Quick Shot! {opponent.name} took {damage} damage!!")
+        opponent.health -= damage
         return damage
         
-    def Evade(self):
+    def Evade(self, opponent=None):
         chance = random.random()
-        
         if chance > 0.5:
-            print(f"{self.name} evaded the Attack!")
+            print(f"{self.name} evaded {opponent.name}'s attack!")
             return True
         else:
-            print(f"{self.name} failed to evade!")
+            print(f"{self.name} failed to evade {opponent.name}'s attack!")
             return False
-        
 
 class Paladin(Character):
     def __init__(self, name):
         super().__init__(name, health=150, attack_power=35)
         self.abilities = [self.HolyStrike, self.DivineShield]
+        self.block_next = False
         
-    def HolyStrike(self):
+    def HolyStrike(self, opponent):
         crit_attack = 2
         holy_damage = 5
         chance = random.random()
@@ -159,20 +174,18 @@ class Paladin(Character):
         if chance < 0.7:
             total_damage = (self.attack_power + holy_damage) * crit_attack
             print(f"{self.name} used HolyStrike! It hit critically for {total_damage} damage!")
-            return total_damage
         else:
             total_damage = self.attack_power + holy_damage
             print(f"{self.name} used HolyStrike for {total_damage} damage.")
-            return total_damage
         
-    def DivineShield(self):
-        print(f"{self.name} activates Divine Shield! Next attack will be blocked.")
-        return True
-            
+        opponent.health -= total_damage
+        if opponent.health <= 0:
+            print(f"{opponent.name} has been defeated!")
         
+    def DivineShield(self, opponent=None):
+        self.block_next = True
+        print(f"{self.name} activates Divine Shield! The next attack will be blocked.")
             
-
-
 # EvilWizard class (inherits from Character)
 class EvilWizard(Character):
     def __init__(self, name):
@@ -219,34 +232,37 @@ def battle(player, wizard):
 
         if choice == '1':
             player.attack(wizard)
+            
         elif choice == '2':
             for index, ability in enumerate(player.abilities):
                 print(f"{index + 1}. {ability.__name__.replace('_', ' ').capitalize()}")
 
             ability_used = int(input("Choose an ability: "))
             if 1 <= ability_used <= len(player.abilities):
-                selected_ability = player.abilities[ability_used -1]
+                selected_ability = player.abilities[ability_used - 1]
                 
                 params = inspect.signature(selected_ability).parameters
                 
                 if len(params) > 1:
                     selected_ability(player, wizard)
-                
                 else:
                     selected_ability(wizard)
                 
             else:
                 print("Invalid ability choice")
                     
-            
         elif choice == '3':
-            # Call the heal method here
-            pass  # Implement this
+            player.HealthPotion()
+            
         elif choice == '4':
             player.display_stats()
+            
         else:
             print("Invalid choice, try again.")
             continue
+        
+        if isinstance(player, Warrior) and player.blitzkrieg_cooldown > 0:
+            player.blitzkrieg_cooldown -= 1
 
         # Evil Wizard's turn to attack and regenerate
         if wizard.health > 0:
@@ -258,7 +274,7 @@ def battle(player, wizard):
             break
 
     if wizard.health <= 0:
-        print(f"The wizard {wizard.name} has been defeated by {player.name}!")
+        print(f"{wizard.name} has been defeated by {player.name}!")
 
 # Main function to handle the flow of the game
 def main():
@@ -273,4 +289,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
