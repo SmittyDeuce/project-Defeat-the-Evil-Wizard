@@ -4,10 +4,10 @@ import random
 class Paladin(Character):
     def __init__(self, name):
         super().__init__(name, health=150, attack_power=35)
-        self.abilities = [self.HolyStrike, self.DivineShield]
+        self.abilities = [self.holy_strike, self.divine_shield]
         self.block_next = False
         
-    def HolyStrike(self, opponent):
+    def holy_strike(self, opponent):
         crit_attack = 2
         holy_damage = 5
         chance = random.random()
@@ -23,6 +23,6 @@ class Paladin(Character):
         if opponent.health <= 0:
             print(f"{opponent.name} has been defeated!")
         
-    def DivineShield(self, opponent=None):
+    def divine_shield(self, opponent=None):
         self.block_next = True
         print(f"{self.name} activates Divine Shield! The next attack will be blocked.")

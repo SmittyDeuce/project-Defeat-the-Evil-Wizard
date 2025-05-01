@@ -13,6 +13,7 @@ This is a turn-based fantasy RPG game where players can choose a character class
 - **Battle Outcome**: The game ends when either the player or the Evil Wizard is defeated.
 
 ## Character Classes
+
 ### 1. **Warrior**
 - High health and attack power.
 - Special Abilities:
@@ -36,3 +37,12 @@ This is a turn-based fantasy RPG game where players can choose a character class
 - Special Abilities:
   - **Holy Strike**: Deals damage with a chance of critical damage.
   - **Divine Shield**: Temporarily blocks the next incoming attack.
+
+---
+
+## Update Log
+
+### 4/29–4/30
+- Refactored code to be more modular by separating character classes into their own modules.
+- Fixed error where abilities failed when passed a string instead of the correct parameters.
+- Renamed functions and variables to follow proper `snake_case` naming conventions.

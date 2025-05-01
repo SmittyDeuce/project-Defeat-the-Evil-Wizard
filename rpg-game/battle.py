@@ -1,4 +1,6 @@
 import inspect
+from character.warrior import Warrior
+
 def battle(player, wizard):
     while wizard.health > 0 and player.health > 0:
         print("\n--- Your Turn ---")
@@ -16,22 +18,24 @@ def battle(player, wizard):
             for index, ability in enumerate(player.abilities):
                 print(f"{index + 1}. {ability.__name__.replace('_', ' ').capitalize()}")
 
-            ability_used = int(input("Choose an ability: "))
-            if 1 <= ability_used <= len(player.abilities):
-                selected_ability = player.abilities[ability_used - 1]
-                
-                params = inspect.signature(selected_ability).parameters
-                
-                if len(params) > 1:
-                    selected_ability(player, wizard)
+            try:
+                ability_used = int(input("Choose an ability: "))
+                if 1 <= ability_used <= len(player.abilities):
+                    selected_ability = player.abilities[ability_used - 1]
+
+                    params = inspect.signature(selected_ability).parameters
+                    if len(params) > 1:
+                        selected_ability(player, wizard)
+                    else:
+                        selected_ability(wizard)
                 else:
-                    selected_ability(wizard)
-                
-            else:
-                print("Invalid ability choice")
+                    print("Invalid ability choice. Please enter a valid number.")
+            except ValueError:
+                print("Invalid input. Please enter a number.")
+
                     
         elif choice == '3':
-            player.HealthPotion()
+            player.health_potion()
             
         elif choice == '4':
             player.display_stats()

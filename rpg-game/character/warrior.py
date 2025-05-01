@@ -6,10 +6,10 @@ import inspect
 class Warrior(Character):
     def __init__(self, name):
         super().__init__(name, health=140, attack_power=45)
-        self.abilities = [self.FinalStand, self.Blitzkrieg]
+        self.abilities = [self.final_stand, self.blitzkrieg]
         self.blitzkrieg_cooldown = 0  # in turns
 
-    def FinalStand(self, opponent):
+    def final_stand(self, opponent):
         if self.health <= 0:
             print(f"{self.name} is no longer able to fight... Final Stand activates!")
             damage = self.attack_power * 3
@@ -22,7 +22,7 @@ class Warrior(Character):
         else:
             print(f"{self.name} is still alive and cannot use Final Stand.")
 
-    def Blitzkrieg(self, opponent):
+    def blitzkrieg(self, opponent):
         if self.blitzkrieg_cooldown > 0:
             print(f"Blitzkrieg is on cooldown for {self.blitzkrieg_cooldown} more turn(s).")
             return
