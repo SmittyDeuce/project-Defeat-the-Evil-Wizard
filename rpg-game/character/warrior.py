@@ -1,4 +1,4 @@
-from base import Character
+from .base import Character
 import random
 import inspect
 

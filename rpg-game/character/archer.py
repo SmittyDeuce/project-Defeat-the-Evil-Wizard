@@ -1,7 +1,5 @@
-from base import Character
+from .base import Character
 import random
-import inspect
-
 
 class Archer(Character):
     def __init__(self, name):

@@ -1,7 +1,7 @@
-from archer import Archer
-from warrior import Warrior
-from mage import Mage
-from paladin import Paladin
+from .archer import Archer
+from .mage import Mage
+from .paladin import Paladin
+from .warrior import Warrior
 
 def create_character():
     print("Choose your character class:")
